@@ -1,5 +1,6 @@
 const { Product } = require('../database/models');
 const express = require('express');
+const { Op } = require('sequelize');
 const {verifyToken} = require('../utils/token'); //.js
 
 const router = express.Router();
@@ -7,13 +8,24 @@ const router = express.Router();
 
 
 router.get('/', async (req, res) => {
-    try {
-        const products = await Product.findAll();
-        res.status(200).json({success: true, message: 'Products retrieved successfully', data: products});
-    } catch (error) {
-        res.status(500).json({success: false, message: 'Error retrieving products', data: error.message});
+  try {
+    const { category, sortPrice } = req.query; // sortPrice: 'asc' sau 'desc'
+    const where = {};
+    const order = [];
+
+    if (category) where.category = category;
+    if (sortPrice && (sortPrice === 'asc' || sortPrice === 'desc')) {
+      order.push(['price', sortPrice]);
     }
+
+    const products = await Product.findAll({ where, order });
+    res.status(200).json({ success: true, message: 'Products retrieved successfully', data: products });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error retrieving products', data: error.message });
+  }
 })
+
+
 
 
 
@@ -101,7 +113,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 })
 
-//testare update + delete
 
 
 module.exports = router;
