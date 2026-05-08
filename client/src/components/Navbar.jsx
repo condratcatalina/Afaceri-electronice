@@ -22,6 +22,9 @@ export default function Navbar() {
           <NavLink to="/community" className={({ isActive }) => isActive ? 'text-[#C5A059]' : 'hover:text-[#C5A059]'}>
             Comunitate
           </NavLink>
+          <NavLink to="/blind-date" className="hover:text-[#C5A059] transition-colors">
+            Blind Date
+          </NavLink>
           <NavLink to="/journal" className={({ isActive }) => isActive ? 'text-[#C5A059]' : 'hover:text-[#C5A059]'}>
             File de Jurnal
           </NavLink>

@@ -14,6 +14,7 @@ import FavoritesPage from "./pages/FavoritesPage";
 import CommunityPage from "./pages/CommunityPage";
 import BlogPage from "./pages/BlogPage";
 import ArticleDetailsPage from "./pages/ArticleDetailsPage";
+import BlindDatePage from './pages/BlindDatePage';
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ export const router = createBrowserRouter([
       {
         path: "community",
         element: <CommunityPage />,
+      },
+       {
+        path: "blind-date", 
+        element: <BlindDatePage />,
       },
       {
         path: "journal",
