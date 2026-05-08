@@ -1,6 +1,6 @@
 const { sequelize } = require('../server');
 const { DataTypes } = require('sequelize');
-const User = require('./User'); // make sure your User model exists
+const User = require('./User'); 
 const Product = require('./Product');
 
 const CartItem = sequelize.define('CartItem', {
@@ -40,7 +40,7 @@ const CartItem = sequelize.define('CartItem', {
 }
 );
 
-// Associations
+
 CartItem.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 CartItem.belongsTo(Product, { foreignKey: 'product_id', onDelete: 'CASCADE' });
 

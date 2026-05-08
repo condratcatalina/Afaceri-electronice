@@ -1,15 +1,7 @@
 import axiosNoAuth from "../axios/axiosNoAuth";
 import axiosAuth from "../axios/axiosAuth";
 
-// export const fetchProducts = async () => {
-//   try {
-//     const response = await axiosNoAuth.get('products');
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching products:", error);
-//     return error.response?.data;
-//   }
-// };
+
 
 export const fetchProducts = async (filters = {}) => {
   try {
@@ -36,6 +28,8 @@ export const getProductById = async (id) => {
     return error.response?.data;
   }
 };
+
+
 
 export const fetchProductById = async (id) => {
   try {

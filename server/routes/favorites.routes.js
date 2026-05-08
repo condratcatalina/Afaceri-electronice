@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.use(verifyToken);
 
-// GET /api/favourites -> lista favorite
+
 router.get('/', async (req, res) => {
   try {
     const favorites = await FavoriteItem.findAll({
@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/favourites -> adauga in favorite
+
 router.post('/', async (req, res) => {
   try {
     const { product_id } = req.body;
@@ -35,7 +35,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// DELETE /api/favourites/:id -> sterge din favorite
+
 router.delete('/:id', async (req, res) => {
   try {
     const favorite = await FavoriteItem.findOne({ where: { id: req.params.id, user_id: req.userId } });

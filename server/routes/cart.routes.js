@@ -4,15 +4,15 @@ const { verifyToken } = require('../utils/token');
 
 const router = express.Router();
 
-// toate rutele folosesc token
+
 router.use(verifyToken);
 
-// GET /api/cart -> returneaza toate itemele din cos pentru user-ul logat
+
 router.get('/', async (req, res) => {
   try {
     const cartItems = await CartItem.findAll({
-      where: { user_id: req.userId }, // folosit consistent cu POST
-      include: [Product],             // include datele produsului
+      where: { user_id: req.userId },
+      include: [Product],            
     });
 
     res.status(200).json({
@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST /api/cart -> add item to cart
+
 router.post('/', async (req, res) => {
   try {
     const { product_id, quantity } = req.body;
@@ -53,7 +53,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // fetch item complet cu Product inclus
+   
     const fullItem = await CartItem.findByPk(item.id, { include: [Product] });
 
     res.status(201).json({
@@ -70,7 +70,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT /api/cart/:id -> update quantity
+
 router.put('/:id', async (req, res) => {
   try {
     const id = req.params.id;
@@ -92,7 +92,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE /api/cart/:id
+
 router.delete('/', async (req, res) => {
   try {
     await CartItem.destroy({

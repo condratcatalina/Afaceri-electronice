@@ -11,7 +11,9 @@ import { AdminRoute } from "./components/AdminRoute";
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import CartPage from './pages/CartPage';
 import FavoritesPage from "./pages/FavoritesPage";
-
+import CommunityPage from "./pages/CommunityPage";
+import BlogPage from "./pages/BlogPage";
+import ArticleDetailsPage from "./pages/ArticleDetailsPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +30,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "products/:id",
-        element: <ProductDetailsPage />
+        element: <ProductDetailsPage />,
       },
       {
         path: "cart",
@@ -36,7 +38,19 @@ export const router = createBrowserRouter([
       },
       {
         path: "favorites",
-        element: <FavoritesPage  />,
+        element: <FavoritesPage />,
+      },
+      {
+        path: "community",
+        element: <CommunityPage />,
+      },
+      {
+        path: "journal",
+        element: <BlogPage />,
+      },
+      {
+        path: "journal/:slug",
+        element: <ArticleDetailsPage />,
       },
 
       // Protected routes - require authentication

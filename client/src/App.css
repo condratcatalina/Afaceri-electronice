@@ -1,8 +1,30 @@
 @import "tailwindcss";
 
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif; /* Font curat pentru textul de bază */
+    background-color: #FDFBF7; /* Cream background */
+    color: #2D2926;
+  }
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Playfair Display', serif; /* Font elegant pentru titluri */
+  }
+}
+
 html, body, #root {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-y: auto; 
+  overflow-x: hidden;
+  background-color: #FDFBF7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Stil pentru butoanele premium aurii */
+.btn-premium {
+  @apply bg-[#C5A059] hover:bg-[#8B5E3C] text-white transition-all duration-300 shadow-sm hover:shadow-md;
 }

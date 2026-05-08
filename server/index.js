@@ -13,12 +13,14 @@ const userRoutes = require('./routes/user.routes');
 const productRoutes = require('./routes/product.routes');
 const cartRoutes = require('./routes/cart.routes');
 const favoriteRoutes = require('./routes/favorites.routes');
+const reviewRoutes = require('./routes/review.routes');
 
 const PORT = process.env.PORT || 3001;
 
 app.use(morgan('dev'))
 app.use(cors());
 app.use(express.json());
+
 
 
 app.get('/', (req, res) => {
@@ -31,6 +33,7 @@ app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
 app.use('/favorites', favoriteRoutes);
+app.use('/reviews', reviewRoutes);
 
 
 app.listen(PORT, () => {

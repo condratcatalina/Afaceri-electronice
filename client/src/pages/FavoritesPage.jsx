@@ -36,14 +36,14 @@ export default function FavoritesPage() {
     }
   };
 
-  const handleBuy = async (item) => {
-    try {
-      await dispatch(addToCart({ productId: item.product_id, quantity: 1 })).unwrap();
-      toast.success('Added to cart');
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
+ const handleBuy = async (item) => {
+      try {
+        await dispatch(addToCart({ product_id: item.Product.id, quantity: 1 })).unwrap();
+        toast.success('Added to cart');
+      } catch (err) {
+        toast.error(err.message || 'Failed to add to cart');
+      }
+};
 
   if (loading) return <LoadingSpinner />;
 
@@ -82,6 +82,7 @@ export default function FavoritesPage() {
                 >
                   Buy
                 </button>
+
                 <button
                   onClick={() => handleRemove(item.id)}
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

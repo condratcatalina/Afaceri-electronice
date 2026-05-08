@@ -6,81 +6,43 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
-
   return (
-    <nav className="bg-gradient-to-r from-purple-700 via-purple-600 to-purple-500 shadow p-4 flex justify-between items-center text-white">
-      {/* Stânga: Logo + Home + Products */}
-      <div className="flex items-center space-x-6">
-        <Link to="/" className="text-2xl font-bold tracking-wide">
-          BookStore
+    <nav className="bg-white border-b border-stone-100 shadow-sm p-5 flex justify-between items-center sticky top-0 z-50">
+      <div className="flex items-center space-x-10">
+        <Link to="/" className="text-3xl font-serif italic tracking-tighter text-[#2D2926]">
+          L'Éternel
         </Link>
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            isActive ? 'font-semibold underline' : 'hover:underline'
-          }
-        >
-          Home
-        </NavLink>
-        <NavLink
-          to="/products"
-          className={({ isActive }) =>
-            isActive ? 'font-semibold underline' : 'hover:underline'
-          }
-        >
-          Products
-        </NavLink>
+        <div className="hidden md:flex space-x-8 text-sm uppercase tracking-widest font-medium text-stone-500">
+          <NavLink to="/" className={({ isActive }) => isActive ? 'text-[#C5A059] border-b border-[#C5A059]' : 'hover:text-[#C5A059]'}>
+            Acasă
+          </NavLink>
+          <NavLink to="/products" className={({ isActive }) => isActive ? 'text-[#C5A059] border-b border-[#C5A059]' : 'hover:text-[#C5A059]'}>
+            Boutique
+          </NavLink>
+          <NavLink to="/community" className={({ isActive }) => isActive ? 'text-[#C5A059]' : 'hover:text-[#C5A059]'}>
+            Comunitate
+          </NavLink>
+          <NavLink to="/journal" className={({ isActive }) => isActive ? 'text-[#C5A059]' : 'hover:text-[#C5A059]'}>
+            File de Jurnal
+          </NavLink>
+        </div>
       </div>
 
-      {/* Dreapta: Favorites + Cart + User */}
-      <div className="flex items-center space-x-6">
-        <NavLink
-          to="/favorites"
-          className={({ isActive }) =>
-            isActive ? 'font-semibold underline' : 'hover:underline'
-          }
-        >
-          Favorites
+      <div className="flex items-center space-x-8 text-sm uppercase tracking-widest font-medium text-stone-500">
+        <NavLink to="/favorites" className={({ isActive }) => isActive ? 'text-[#C5A059]' : 'hover:text-[#C5A059]'}>
+          Favorite
         </NavLink>
-
-        <NavLink
-          to="/cart"
-          className={({ isActive }) =>
-            isActive ? 'font-semibold underline' : 'hover:underline'
-          }
-        >
-          Cart
+        <NavLink to="/cart" className={({ isActive }) => isActive ? 'text-[#C5A059]' : 'hover:text-[#C5A059]'}>
+          Coș
         </NavLink>
-
         {user ? (
-          <button
-            onClick={handleLogout}
-            className="bg-white text-purple-700 px-3 py-1 rounded hover:bg-gray-100"
-          >
+          <button onClick={() => dispatch(logout())} className="border border-stone-200 px-4 py-1 hover:bg-stone-50 transition">
             Logout
           </button>
         ) : (
-          <div className="flex space-x-4">
-            <NavLink
-              to="/login"
-              className={({ isActive }) =>
-                isActive ? 'font-semibold underline' : 'hover:underline'
-              }
-            >
-              Login
-            </NavLink>
-            <NavLink
-              to="/register"
-              className={({ isActive }) =>
-                isActive ? 'font-semibold underline' : 'hover:underline'
-              }
-            >
-              Register
-            </NavLink>
-          </div>
+          <Link to="/login" className="bg-[#2D2926] text-white px-5 py-1 hover:bg-stone-800 transition">
+            Login
+          </Link>
         )}
       </div>
     </nav>

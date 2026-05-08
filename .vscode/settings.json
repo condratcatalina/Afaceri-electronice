@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "LibrariaMea",
+            "database": "${workspaceFolder:Seminar}/server/database/db.sqlite"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
