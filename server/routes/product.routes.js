@@ -5,11 +5,9 @@ const {verifyToken} = require('../utils/token'); //.js
 
 const router = express.Router();
 
-
-
 router.get('/', async (req, res) => {
   try {
-    const { category, sortPrice } = req.query; // sortPrice: 'asc' sau 'desc'
+    const { category, sortPrice } = req.query;
     const where = {};
     const order = [];
 
@@ -41,6 +39,12 @@ router.get('/:id', async (req, res) => {
         if (!product) {
             return res.status(404).json({success: false, message: 'Product not found', data: {}})
         }
+
+        // --- LINII DE DEBUG ---
+        console.log("--- DEBUG START ---");
+        console.log("Câmpuri detectate de Sequelize:", Object.keys(product.dataValues));
+        console.log("Valoare spotify_url:", product.spotify_url);
+        console.log("--- DEBUG END ---");
 
         res.status(200).json({success: true, message: 'Product was found', data: product})
     } catch (error) {

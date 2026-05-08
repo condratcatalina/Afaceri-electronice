@@ -1,6 +1,6 @@
-const { sequelize } = require('../server');
-const { DataTypes } = require('sequelize');
 
+const { DataTypes } = require('sequelize');
+const sequelize = require('../db');
 
 const Product = sequelize.define('Product', {
   id: {
@@ -44,18 +44,17 @@ const Product = sequelize.define('Product', {
   },
 
   category: {
-    type: DataTypes.ENUM('Fiction', 'SF', 'Historical Fiction', 'Literature Fiction', 'Non-fiction', 'Thriller', 'Romance', 'Fantasy Romance' ,'Other'),
+    type: DataTypes.ENUM('Fiction', 'SF', 'Historical Fiction', 'Literature Fiction', 'Non-fiction', 'Thriller', 'Romance', 'Fantasy Romance', 'Other'),
     allowNull: false,
     validate: {
       isIn: {
-        args: [['Fiction', 'SF', 'Historical Fiction', 'Literary Fiction', 'Non-fiction', 'Thriller', 'Romance', 'Fantasy Romance']],
+        args: [['Fiction', 'SF', 'Historical Fiction', 'Literary Fiction', 'Non-fiction', 'Thriller', 'Romance', 'Fantasy Romance', 'Other']],
         msg: 'Category must be one of the predefined values'
       }
     }
   },
 
   image: {
-    // store image URL or path
     type: DataTypes.STRING,
     allowNull: true,
   },
@@ -74,6 +73,12 @@ const Product = sequelize.define('Product', {
       }
     }
   },
+
+  spotify_url: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+
 }, {
   tableName: 'products',
   timestamps: true,

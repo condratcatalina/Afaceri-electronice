@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { fetchProductById } from '../api/product.routes';
 import { fetchReviewsByProduct, postReview } from '../api/review.routes';
-import { addFavorite } from '../api/favorite.routes'; // Importul rutei de favorite
+import { addFavorite } from '../api/favorite.routes'; 
 import { addToCart } from '../store/slices/cartSlice';
 
 export default function ProductDetailsPage() {
@@ -19,6 +19,9 @@ export default function ProductDetailsPage() {
   const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  // Playlist default în cazul în care produsul nu are unul setat
+  const defaultSpotify = "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9C7V6r7?utm_source=generator";
+
   useEffect(() => {
     if (product) {
       document.title = `L'Éternel | ${product.name}`;
@@ -30,7 +33,16 @@ export default function ProductDetailsPage() {
       try {
         setLoading(true);
         const pRes = await fetchProductById(id);
-        if (pRes?.data) setProduct(pRes.data);
+        
+        // COREKȚIE: În JSON-ul tău, produsul e în pRes.data (dacă API-ul returnează direct body-ul) 
+        // sau în pRes.data.data (dacă folosești Axios și API-ul tău pune datele în cheia .data)
+        // Verificăm ambele variante:
+        const productData = pRes.data?.id ? pRes.data : pRes.data; 
+        
+        if (productData) {
+            setProduct(productData);
+        }
+
         const rRes = await fetchReviewsByProduct(id);
         if (rRes.success) setReviews(rRes.data);
       } catch (err) {
@@ -99,7 +111,6 @@ export default function ProductDetailsPage() {
               {product?.description}
             </p>
 
-            {/* BUTOANE ACȚIUNE */}
             <div className="flex gap-4 mt-12">
               <button 
                 onClick={() => dispatch(addToCart({ product_id: product.id, quantity: 1 }))} 
@@ -117,11 +128,20 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* MULTIMEDIA */}
+        {/* MULTIMEDIA DINAMICĂ */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
             <h4 className="text-stone-800 font-serif italic text-xl mb-4">Muzică pentru citit</h4>
-            <iframe style={{borderRadius:"12px"}} src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9Cj9Sms" width="100%" height="152" frameBorder="0" allow="autoplay; encrypted-media"></iframe>
+            <iframe 
+              style={{borderRadius:"12px"}} 
+              // COREKȚIE: Folosim link-ul din DB dacă există, altfel fallback la cel de test
+              src={product?.spotify_url || defaultSpotify} 
+              width="100%" 
+              height="152" 
+              frameBorder="0" 
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy"
+            ></iframe>
           </div>
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
             <h4 className="text-stone-800 font-serif italic text-xl mb-4">Atmosfera L'Éternel</h4>
@@ -136,7 +156,7 @@ export default function ProductDetailsPage() {
           <form onSubmit={handleReviewSubmit} className="max-w-xl mx-auto space-y-4 mb-16 text-center">
             <div className="flex items-center justify-center gap-4">
               <label className="text-sm font-semibold text-stone-600 italic">Aura cărții:</label>
-              <select value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: e.target.value})} className="bg-white border border-stone-200 rounded-lg px-4 py-2 text-[#C5A059] font-bold">
+              <select value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: Number(e.target.value)})} className="bg-white border border-stone-200 rounded-lg px-4 py-2 text-[#C5A059] font-bold">
                 <option value="5">5 Inimi ♥♥♥♥♥</option>
                 <option value="4">4 Inimi ♥♥♥♥</option>
                 <option value="3">3 Inimi ♥♥♥</option>
