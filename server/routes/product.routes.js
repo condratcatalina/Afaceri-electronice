@@ -7,11 +7,18 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const { category, sortPrice } = req.query;
+    const { category, sortPrice, tag } = req.query;
     const where = {};
     const order = [];
 
     if (category) where.category = category;
+
+    if (tag) {
+      where.tags = {
+        [Op.like]: `%${tag}%`
+      };
+    }
+
     if (sortPrice && (sortPrice === 'asc' || sortPrice === 'desc')) {
       order.push(['price', sortPrice]);
     }
@@ -21,7 +28,7 @@ router.get('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error retrieving products', data: error.message });
   }
-})
+});
 
 
 

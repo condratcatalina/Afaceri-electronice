@@ -34,11 +34,12 @@ app.use('/cart', cartRoutes);
 app.use('/favorites', favoriteRoutes);
 app.use('/reviews', reviewRoutes);
 
-// SINCRONIZARE ȘI PORNIRE
-sequelize.sync({ alter: true }) 
+
+sequelize.sync(
+  //{ alter: true }
+) 
   .then(() => {
     console.log('✨ Baza de date sincronizată (spotify_url e gata!)');
-    // MODIFICARE: Folosim variabila PORT definită mai sus
     app.listen(PORT, () => console.log(`🚀 Server pe portul ${PORT}`));
   })
   .catch(err => {

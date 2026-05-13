@@ -9,6 +9,8 @@ export const fetchProducts = async (filters = {}) => {
     if (filters.category) params.append('category', filters.category);
     if (filters.sortPrice) params.append('sortPrice', filters.sortPrice);
 
+    if (filters.tag) params.append('tag', filters.tag);
+
     const response = await axiosNoAuth.get(`products?${params.toString()}`);
     return response.data;
   } catch (error) {

@@ -3,13 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCart, clearCart } from '../store/slices/cartSlice';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { toast } from 'sonner';
-import axiosAuth from '../axios/axiosAuth'; // axios cu token
+import axiosAuth from '../axios/axiosAuth';
 
-// Funcție pentru a șterge cart-ul din backend
 const clearCartBackend = async () => {
   try {
-    const response = await axiosAuth.delete('/cart'); // ruta DELETE /cart
-    return response.data;
+    await axiosAuth.delete('/cart');
   } catch (err) {
     throw new Error(err.response?.data?.message || 'Error clearing cart');
   }
@@ -19,72 +17,128 @@ export default function CartPage() {
   const dispatch = useDispatch();
   const { items, loading, error } = useSelector(state => state.cart);
 
-  // Fetch cart la mount
   useEffect(() => {
     dispatch(fetchCart())
       .unwrap()
       .catch(err => toast.error(err?.message || 'Failed to load cart'));
   }, [dispatch]);
 
+  // --- LOGICA DE CALCUL DISCOUNT RITUAL ---
+  const calculateRitualDiscount = () => {
+    let totalDiscount = 0;
+    const bundles = {};
+
+    // 1. Grupăm produsele după primul tag
+    items.forEach(item => {
+      const product = item.Product;
+      if (!product || !product.tags) return;
+
+      const primaryTag = product.tags.split(',')[0].trim();
+      if (!bundles[primaryTag]) {
+        bundles[primaryTag] = { book: false, extras: [] };
+      }
+
+      if (['Candles', 'Tea', 'Wine'].includes(product.category)) {
+        bundles[primaryTag].extras.push({
+          price: product.price,
+          quantity: item.quantity
+        });
+      } else {
+        bundles[primaryTag].book = true;
+      }
+    });
+
+    // 2. Calculăm 10% doar pentru seturile care au o CARTE + (LUMÂNARE/CEAI/VIN)
+    Object.values(bundles).forEach(bundle => {
+      if (bundle.book && bundle.extras.length > 0) {
+        bundle.extras.forEach(extra => {
+          // Reducerea se aplică pe produsele adiționale (lumânare/băutură)
+          totalDiscount += (extra.price * extra.quantity) * 0.10;
+        });
+      }
+    });
+
+    return totalDiscount;
+  };
+
   if (loading) return <LoadingSpinner />;
-
   if (error) return <p className="text-red-500 text-center mt-10">{error}</p>;
+  if (!items || items.length === 0) return (
+    <div className="h-screen bg-[#FDFBF7] flex flex-col items-center justify-center">
+      <p className="text-stone-500 text-lg italic font-serif">Coșul tău este gol...</p>
+    </div>
+  );
 
-  if (!items || items.length === 0)
-    return (
-      <div className="h-screen bg-gradient-to-br from-white to-gray-100 flex flex-col items-center justify-center">
-        <p className="text-gray-500 text-lg">Your cart is empty</p>
-      </div>
-    );
-
-  // Total price doar pentru itemele valide
-  const totalPrice = items.reduce((acc, item) => {
-    if (!item.Product) return acc;
-    return acc + item.quantity * item.Product.price;
+  const subtotal = items.reduce((acc, item) => {
+    return acc + (item.Product ? item.quantity * item.Product.price : 0);
   }, 0);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-white to-indigo-50 py-16 px-6">
-      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-xl p-6">
-        <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
+  const discount = calculateRitualDiscount();
+  const finalTotal = subtotal - discount;
 
-        <div className="space-y-4">
+  return (
+    <div className="min-h-screen bg-[#FDFBF7] py-16 px-6">
+      <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl p-8 border border-stone-100">
+        <h1 className="text-4xl font-serif italic mb-10 text-stone-900 border-b pb-4">Coșul tău</h1>
+
+        <div className="space-y-6">
           {items.map(item => (
-            <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center space-x-4">
+            <div key={item.id} className="flex items-center justify-between p-4 bg-stone-50 rounded-2xl transition-all hover:shadow-md">
+              <div className="flex items-center space-x-6">
                 <img
-                  src={item.Product?.image || 'https://via.placeholder.com/100'}
-                  alt={item.Product?.name || 'Product'}
-                  className="w-20 h-20 object-cover rounded"
+                  src={item.Product?.image}
+                  alt={item.Product?.name}
+                  className="w-24 h-24 object-cover rounded-xl shadow-sm"
                 />
                 <div>
-                  <h2 className="font-semibold">{item.Product?.name || 'N/A'}</h2>
-                  <p>${item.Product?.price || 0} x {item.quantity}</p>
+                  <h2 className="font-serif text-xl text-stone-800">{item.Product?.name}</h2>
+                  <p className="text-stone-500 font-light italic">{item.Product?.category}</p>
+                  <p className="text-[#C5A059] font-bold mt-1">{item.Product?.price} RON <span className="text-stone-400 text-sm font-normal">x {item.quantity}</span></p>
                 </div>
               </div>
-              <p className="font-bold">
-                ${(item.Product ? (item.Product.price * item.quantity).toFixed(2) : '0.00')}
+              <p className="font-serif text-xl text-stone-900">
+                {(item.Product?.price * item.quantity).toFixed(2)} RON
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 flex justify-between items-center">
-          <p className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</p>
-          <button
-            onClick={async () => {
-              try {
-                await clearCartBackend(); // șterge din DB
-                dispatch(clearCart());    // șterge din Redux
-                toast.success('Cart cleared!');
-              } catch (err) {
-                toast.error(err.message);
-              }
-            }}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Clear Cart
-          </button>
+        {/* SECȚIUNE SUMAR CALCUL */}
+        <div className="mt-12 border-t pt-8 space-y-3">
+          <div className="flex justify-between text-stone-500">
+            <span>Subtotal:</span>
+            <span>{subtotal.toFixed(2)} RON</span>
+          </div>
+          
+          {discount > 0 && (
+            <div className="flex justify-between text-[#C5A059] font-bold animate-pulse">
+              <span>Reducere Ritual Senzorial (-10%):</span>
+              <span>-{discount.toFixed(2)} RON</span>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center pt-4">
+            <p className="text-3xl font-serif text-stone-900">Total: {finalTotal.toFixed(2)} RON</p>
+            <div className="flex gap-4">
+               <button
+                onClick={async () => {
+                  try {
+                    await clearCartBackend();
+                    dispatch(clearCart());
+                    toast.success('Coșul a fost golit');
+                  } catch (err) {
+                    toast.error(err.message);
+                  }
+                }}
+                className="text-stone-400 hover:text-red-500 text-sm font-bold uppercase tracking-widest transition-colors"
+              >
+                Golește Coșul
+              </button>
+              <button className="bg-[#C5A059] text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-[#8B5E3C] shadow-lg transition-all">
+                Spre Checkout
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

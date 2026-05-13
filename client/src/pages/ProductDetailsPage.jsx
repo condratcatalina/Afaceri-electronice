@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useDispatch } from 'react-redux';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { fetchProductById } from '../api/product.routes';
+import { fetchProductById, fetchProducts } from '../api/product.routes'; 
 import { fetchReviewsByProduct, postReview } from '../api/review.routes';
 import { addFavorite } from '../api/favorite.routes'; 
 import { addToCart } from '../store/slices/cartSlice';
@@ -18,41 +18,62 @@ export default function ProductDetailsPage() {
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
+  
+  const [suggestedCandle, setSuggestedCandle] = useState(null);
+  const [suggestedDrink, setSuggestedDrink] = useState(null);
 
-  // Playlist default în cazul în care produsul nu are unul setat
   const defaultSpotify = "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9C7V6r7?utm_source=generator";
-
-  useEffect(() => {
-    if (product) {
-      document.title = `L'Éternel | ${product.name}`;
-    }
-  }, [product]);
 
   useEffect(() => {
     const getData = async () => {
       try {
         setLoading(true);
         const pRes = await fetchProductById(id);
+        const productData = pRes?.data; 
         
-        // COREKȚIE: În JSON-ul tău, produsul e în pRes.data (dacă API-ul returnează direct body-ul) 
-        // sau în pRes.data.data (dacă folosești Axios și API-ul tău pune datele în cheia .data)
-        // Verificăm ambele variante:
-        const productData = pRes.data?.id ? pRes.data : pRes.data; 
-        
-        if (productData) {
-            setProduct(productData);
-        }
+        if (pRes?.success && productData) {
+          setProduct(productData);
+          document.title = `L'Éternel | ${productData.name}`;
+          const rawTags = productData.tags;
 
+          if (rawTags) {
+            const allTags = rawTags.split(',').map(t => t.trim());
+            let foundCandle = null;
+            let foundDrink = null;
+
+            for (const tag of allTags) {
+              if (foundCandle && foundDrink) break;
+              const searchRes = await fetchProducts({ tag: tag });
+              if (searchRes?.success && searchRes?.data) {
+                const results = searchRes.data;
+                if (!foundCandle) {
+                  foundCandle = results.find(item => item.category === 'Candles' && String(item.id) !== String(id));
+                }
+                if (!foundDrink) {
+                  foundDrink = results.find(item => (item.category === 'Tea' || item.category === 'Wine') && String(item.id) !== String(id));
+                }
+              }
+            }
+            setSuggestedCandle(foundCandle);
+            setSuggestedDrink(foundDrink);
+          }
+        }
         const rRes = await fetchReviewsByProduct(id);
         if (rRes.success) setReviews(rRes.data);
       } catch (err) {
-        toast.error('Eroare la încărcare.');
+        console.error("❌ Eroare:", err);
       } finally {
         setLoading(false);
       }
     };
     getData();
   }, [id]);
+
+  // Funcții pentru acțiuni individuale
+  const handleAddToCartMain = () => {
+    dispatch(addToCart({ product_id: product.id, quantity: 1 }));
+    toast.success(`${product.name} a fost adăugat în coș!`);
+  };
 
   const handleFavoriteClick = async () => {
     try {
@@ -86,55 +107,144 @@ export default function ProductDetailsPage() {
     }
   };
 
+  // Funcție universală pentru adăugare pachete
+  const handleAddBundle = (type) => {
+    dispatch(addToCart({ product_id: product.id, quantity: 1 }));
+    
+    if (type === 'trio') {
+      if (suggestedCandle) dispatch(addToCart({ product_id: suggestedCandle.id, quantity: 1 }));
+      if (suggestedDrink) dispatch(addToCart({ product_id: suggestedDrink.id, quantity: 1 }));
+      toast.success("Trio Ritual adăugat!", { description: "Ai primit 20% reducere la pachetul complet." });
+    } else if (type === 'duo-candle') {
+      dispatch(addToCart({ product_id: suggestedCandle.id, quantity: 1 }));
+      toast.success("Duo adăugat!", { description: "Carte + Lumânare cu 10% reducere." });
+    } else if (type === 'duo-drink') {
+      dispatch(addToCart({ product_id: suggestedDrink.id, quantity: 1 }));
+      toast.success("Duo adăugat!", { description: "Carte + Băutură cu 10% reducere." });
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
+
+  // Calcule Prețuri
+  const priceBook = product?.price || 0;
+  const priceCandle = suggestedCandle?.price || 0;
+  const priceDrink = suggestedDrink?.price || 0;
+
+  const duoCandlePrice = ((priceBook + priceCandle) * 0.9).toFixed(2);
+  const duoDrinkPrice = ((priceBook + priceDrink) * 0.9).toFixed(2);
+  const trioPrice = ((priceBook + priceCandle + priceDrink) * 0.8).toFixed(2);
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] py-20 px-4">
       <div className="max-w-5xl mx-auto space-y-16">
         
-        {/* CARD PRODUS */}
+        {/* Secțiunea Produs Principal (Carte) */}
         <div className="bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row border border-stone-100">
-          <div className="md:w-1/2">
-            <img src={product?.image} alt={product?.name} className="w-full h-full object-cover" />
-          </div>
-          <div className="md:w-1/2 p-12 flex flex-col justify-center">
-            <span className="text-[#C5A059] font-bold text-xs uppercase tracking-[0.2em]">{product?.category}</span>
-            <h2 className="text-5xl font-serif italic text-stone-900 mt-2 leading-tight">{product?.name}</h2>
+           <div className="md:w-1/2">
+              <img src={product?.image} alt={product?.name} className="w-full h-full object-cover" />
+           </div>
+           <div className="md:w-1/2 p-12 flex flex-col justify-center">
+              <span className="text-[#C5A059] font-bold text-xs uppercase tracking-[0.2em]">{product?.category}</span>
+              <h2 className="text-5xl font-serif italic text-stone-900 mt-2 leading-tight">{product?.name}</h2>
+              
+              <div className="flex items-center mt-4 gap-2">
+                  <span className="text-[#C5A059] text-xl">♥</span>
+                  <span className="font-bold text-stone-700">{(reviews.reduce((acc, r) => acc + r.rating, 0) / (reviews.length || 1)).toFixed(1)} / 5</span>
+              </div>
+
+              <p className="text-3xl font-light text-stone-400 mt-6">{product?.price} RON</p>
+              <p className="mt-8 text-stone-600 leading-relaxed italic font-light text-lg border-l-2 border-[#C5A059] pl-6">
+                {product?.description}
+              </p>
+
+              <div className="flex gap-4 mt-12">
+                <button 
+                  onClick={handleAddToCartMain} 
+                  className="flex-[3] bg-[#C5A059] text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-sm shadow-lg hover:bg-[#8B5E3C] transition-all"
+                >
+                  Adaugă în Coș
+                </button>
+                <button 
+                  onClick={handleFavoriteClick}
+                  className="flex-[1] border border-stone-200 text-[#C5A059] py-4 rounded-2xl text-xl hover:bg-stone-50 transition-all"
+                >
+                  ♥
+                </button>
+              </div>
+           </div>
+        </div>
+
+        {/* --- NOUA SECȚIUNE DE PACHETE RITUALE --- */}
+        <div className="space-y-8">
+          <h3 className="text-3xl font-serif italic text-center text-stone-800">Alege-ți Ritualul</h3>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            <div className="flex items-center mt-4 gap-2">
-                <span className="text-[#C5A059] text-xl">♥</span>
-                <span className="font-bold text-stone-700">{(reviews.reduce((acc, r) => acc + r.rating, 0) / (reviews.length || 1)).toFixed(1)} / 5</span>
-            </div>
+            {/* PACHET TRIO - 20% OFF */}
+            {(suggestedCandle && suggestedDrink) && (
+              <div className="bg-[#fdf3e7] rounded-3xl p-8 border-2 border-[#C5A059] shadow-xl relative overflow-hidden">
+                <div className="absolute top-4 right-4 bg-[#C5A059] text-white px-4 py-1 rounded-full text-xs font-bold uppercase">Best Experience</div>
+                <h4 className="text-[#8B5E3C] font-serif text-2xl mb-4">Pachet Trio Complet</h4>
+                <div className="flex gap-4 mb-6">
+                  <img src={product.image} className="w-16 h-24 object-cover rounded shadow" />
+                  <img src={suggestedCandle.image} className="w-16 h-16 object-cover rounded shadow mt-8" />
+                  <img src={suggestedDrink.image} className="w-16 h-16 object-cover rounded shadow mt-8" />
+                </div>
+                <p className="text-sm text-stone-600 italic mb-6">Include: Cartea, Lumânarea și Băutura preferată.</p>
+                <div className="flex justify-between items-end">
+                  <div>
+                    <span className="text-stone-400 line-through text-sm">{(priceBook + priceCandle + priceDrink).toFixed(2)} RON</span>
+                    <p className="text-3xl font-serif text-stone-900">{trioPrice} RON</p>
+                  </div>
+                  <button onClick={() => handleAddBundle('trio')} className="bg-[#8B5E3C] text-white px-6 py-3 rounded-xl font-bold uppercase text-xs hover:bg-[#C5A059] transition-all">
+                    Adaugă Trio (20% OFF)
+                  </button>
+                </div>
+              </div>
+            )}
 
-            <p className="text-3xl font-light text-stone-400 mt-6">{product?.price} RON</p>
-            <p className="mt-8 text-stone-600 leading-relaxed italic font-light text-lg border-l-2 border-[#C5A059] pl-6">
-              {product?.description}
-            </p>
+            {/* PACHETE DUO - 10% OFF */}
+            <div className="space-y-4">
+              {suggestedCandle && (
+                <div className="bg-white rounded-3xl p-6 border border-stone-100 shadow-md flex justify-between items-center">
+                  <div className="flex gap-4 items-center">
+                    <img src={suggestedCandle.image} className="w-12 h-12 object-cover rounded shadow" />
+                    <div>
+                      <h5 className="font-serif italic text-stone-800">Duo: Carte + Lumânare</h5>
+                      <p className="text-lg font-serif text-[#C5A059]">{duoCandlePrice} RON</p>
+                    </div>
+                  </div>
+                  <button onClick={() => handleAddBundle('duo-candle')} className="text-[#C5A059] border border-[#C5A059] px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#C5A059] hover:text-white transition-all">
+                    Adaugă Duo (10% OFF)
+                  </button>
+                </div>
+              )}
 
-            <div className="flex gap-4 mt-12">
-              <button 
-                onClick={() => dispatch(addToCart({ product_id: product.id, quantity: 1 }))} 
-                className="flex-[3] bg-[#C5A059] text-white py-4 rounded-2xl font-bold uppercase tracking-widest text-sm shadow-lg hover:bg-[#8B5E3C] transition-all"
-              >
-                Adaugă în Coș
-              </button>
-              <button 
-                onClick={handleFavoriteClick}
-                className="flex-[1] border border-stone-200 text-[#C5A059] py-4 rounded-2xl text-xl hover:bg-stone-50 transition-all"
-              >
-                ♥
-              </button>
+              {suggestedDrink && (
+                <div className="bg-white rounded-3xl p-6 border border-stone-100 shadow-md flex justify-between items-center">
+                  <div className="flex gap-4 items-center">
+                    <img src={suggestedDrink.image} className="w-12 h-12 object-cover rounded shadow" />
+                    <div>
+                      <h5 className="font-serif italic text-stone-800">Duo: Carte + {suggestedDrink.category}</h5>
+                      <p className="text-lg font-serif text-[#C5A059]">{duoDrinkPrice} RON</p>
+                    </div>
+                  </div>
+                  <button onClick={() => handleAddBundle('duo-drink')} className="text-[#C5A059] border border-[#C5A059] px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#C5A059] hover:text-white transition-all">
+                    Adaugă Duo (10% OFF)
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* MULTIMEDIA DINAMICĂ */}
+        {/* Secțiunea Muzică și Atmosferă */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
             <h4 className="text-stone-800 font-serif italic text-xl mb-4">Muzică pentru citit</h4>
             <iframe 
               style={{borderRadius:"12px"}} 
-              // COREKȚIE: Folosim link-ul din DB dacă există, altfel fallback la cel de test
               src={product?.spotify_url || defaultSpotify} 
               width="100%" 
               height="152" 
@@ -149,7 +259,7 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* LOVE LETTERS SECTION */}
+        {/* Secțiunea Reviews */}
         <div className="bg-white shadow-xl rounded-3xl p-12 border border-stone-100">
           <h3 className="text-3xl font-serif italic text-center mb-10 text-stone-800">Love Letters from our Readers</h3>
           

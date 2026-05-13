@@ -77,6 +77,11 @@ const Product = sequelize.define('Product', {
   spotify_url: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+
+  tags: {
+    type: DataTypes.TEXT, // Folosim TEXT pentru a stoca șirul de tag-uri
+    allowNull: true
   }
 
 }, {
