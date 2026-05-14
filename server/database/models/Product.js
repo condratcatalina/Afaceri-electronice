@@ -82,6 +82,10 @@ const Product = sequelize.define('Product', {
   tags: {
     type: DataTypes.TEXT, // Folosim TEXT pentru a stoca șirul de tag-uri
     allowNull: true
+  },
+  review_url: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 
 }, {

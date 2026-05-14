@@ -239,7 +239,7 @@ export default function ProductDetailsPage() {
           </div>
         </div>
 
-        {/* Secțiunea Muzică și Atmosferă */}
+        {/* Secțiunea Muzică și Recenzii */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
             <h4 className="text-stone-800 font-serif italic text-xl mb-4">Muzică pentru citit</h4>
@@ -253,14 +253,26 @@ export default function ProductDetailsPage() {
               loading="lazy"
             ></iframe>
           </div>
-          <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100">
-            <h4 className="text-stone-800 font-serif italic text-xl mb-4">Atmosfera L'Éternel</h4>
-            <iframe width="100%" height="152" src="https://www.youtube.com/embed/S_N8V-u9ZpI" title="Atmosphere" frameBorder="0" allowFullScreen className="rounded-xl"></iframe>
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 flex flex-col items-center justify-center text-center">
+            <h4 className="text-stone-800 font-serif italic text-xl mb-2">Impresiile Cititorilor</h4>
+            <p className="text-stone-500 italic mb-4 text-sm px-4">
+              {product?.review_url 
+                ? "Am găsit o recenzie care surprinde perfect magia acestei cărți." 
+                : "Descoperă cum a rezonat această poveste în inimile comunității L'Éternel."}
+            </p>
+            <a 
+              href={product?.review_url || "#reader-reviews"} 
+              target={product?.review_url ? "_blank" : "_self"}
+              rel="noreferrer"
+              className="bg-[#FDFBF7] text-[#C5A059] px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-xs border border-stone-100 hover:bg-white transition-all shadow-sm"
+            >
+              {product?.review_url ? "Citește Recenzia Completă" : "Citește Scrisorile"}
+            </a>
           </div>
         </div>
 
         {/* Secțiunea Reviews */}
-        <div className="bg-white shadow-xl rounded-3xl p-12 border border-stone-100">
+        <div id="reader-reviews" className="bg-white shadow-xl rounded-3xl p-12 border border-stone-100">
           <h3 className="text-3xl font-serif italic text-center mb-10 text-stone-800">Love Letters from our Readers</h3>
           
           <form onSubmit={handleReviewSubmit} className="max-w-xl mx-auto space-y-4 mb-16 text-center">
