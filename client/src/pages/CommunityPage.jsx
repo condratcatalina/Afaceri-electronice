@@ -30,7 +30,7 @@ export default function CommunityPage() {
             <p className="text-sm text-stone-500 font-light">
               Alătură-te grupului de Facebook pentru discuții despre "cartea lunii".
             </p>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="text-xs uppercase tracking-widest font-bold text-[#C5A059] hover:text-[#8B5E3C]">
+            <a href="https://www.facebook.com/profile.php?id=61589756166318&locale=ro_RO" target="_blank" rel="noreferrer" className="text-xs uppercase tracking-widest font-bold text-[#C5A059] hover:text-[#8B5E3C]">
               Intră în Grup →
             </a>
           </div>
@@ -40,7 +40,7 @@ export default function CommunityPage() {
             <p className="text-sm text-stone-500 font-light">
               Urmărește-ne pe Instagram pentru inspirație zilnică și unboxing-uri.
             </p>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="text-xs uppercase tracking-widest font-bold text-[#C5A059] hover:text-[#8B5E3C]">
+            <a href="https://www.instagram.com/l_eternel2026" target="_blank" rel="noreferrer" className="text-xs uppercase tracking-widest font-bold text-[#C5A059] hover:text-[#8B5E3C]">
               Urmărește-ne →
             </a>
           </div>

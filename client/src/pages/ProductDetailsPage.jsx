@@ -181,26 +181,64 @@ export default function ProductDetailsPage() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* PACHET TRIO - 20% OFF */}
+            {/* PACHET TRIO - 20% OFF (Modificat pentru evidențiere componente și pictograme) */}
             {(suggestedCandle && suggestedDrink) && (
-              <div className="bg-[#fdf3e7] rounded-3xl p-8 border-2 border-[#C5A059] shadow-xl relative overflow-hidden">
+              <div className="bg-[#fdf3e7] rounded-3xl p-8 border-2 border-[#C5A059] shadow-xl relative overflow-hidden flex flex-col justify-between">
                 <div className="absolute top-4 right-4 bg-[#C5A059] text-white px-4 py-1 rounded-full text-xs font-bold uppercase">Best Experience</div>
-                <h4 className="text-[#8B5E3C] font-serif text-2xl mb-4">Pachet Trio Complet</h4>
-                <div className="flex gap-4 mb-6">
-                  <img src={product.image} className="w-16 h-24 object-cover rounded shadow" />
-                  <img src={suggestedCandle.image} className="w-16 h-16 object-cover rounded shadow mt-8" />
-                  <img src={suggestedDrink.image} className="w-16 h-16 object-cover rounded shadow mt-8" />
-                </div>
-                <p className="text-sm text-stone-600 italic mb-6">Include: Cartea, Lumânarea și Băutura preferată.</p>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <span className="text-stone-400 line-through text-sm">{(priceBook + priceCandle + priceDrink).toFixed(2)} RON</span>
-                    <p className="text-3xl font-serif text-stone-900">{trioPrice} RON</p>
+                
+                <div>
+                  <h4 className="text-[#8B5E3C] font-serif text-2xl mb-6">Pachet Trio Complet</h4>
+                  
+                  {/* Evidențierea clară a celor trei componente pentru justificarea prețului premium */}
+                  <div className="grid grid-cols-3 gap-3 text-center mb-6 border-b border-[#C5A059]/20 pb-6">
+                    <div className="flex flex-col items-center">
+                      <img src={product.image} className="w-14 h-20 object-cover rounded shadow-md mb-2 transition-transform duration-300 hover:scale-105" />
+                      <span className="text-[10px] font-bold text-stone-700 tracking-tight uppercase line-clamp-1">{product.name}</span>
+                      <span className="text-[10px] text-stone-400 font-light">{priceBook} RON</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <img src={suggestedCandle.image} className="w-14 h-14 object-cover rounded shadow-md mb-2 mt-6 transition-transform duration-300 hover:scale-105" />
+                      <span className="text-[10px] font-bold text-stone-700 tracking-tight uppercase line-clamp-1">{suggestedCandle.name}</span>
+                      <span className="text-[10px] text-stone-400 font-light">{priceCandle} RON</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <img src={suggestedDrink.image} className="w-14 h-14 object-cover rounded shadow-md mb-2 mt-6 transition-transform duration-300 hover:scale-105" />
+                      <span className="text-[10px] font-bold text-stone-700 tracking-tight uppercase line-clamp-1">{suggestedDrink.name}</span>
+                      <span className="text-[10px] text-stone-400 font-light">{priceDrink} RON</span>
+                    </div>
                   </div>
-                  <button onClick={() => handleAddBundle('trio')} className="bg-[#8B5E3C] text-white px-6 py-3 rounded-xl font-bold uppercase text-xs hover:bg-[#C5A059] transition-all">
-                    Adaugă Trio (20% OFF)
-                  </button>
+                  
+                  <p className="text-sm text-stone-600 italic mb-6">Include: Cartea, Lumânarea și Băutura preferată.</p>
                 </div>
+
+                <div>
+                  <div className="flex justify-between items-end mb-6">
+                    <div>
+                      <span className="text-stone-400 line-through text-sm">{(priceBook + priceCandle + priceDrink).toFixed(2)} RON</span>
+                      <p className="text-3xl font-serif text-stone-900">{trioPrice} RON</p>
+                    </div>
+                    <button onClick={() => handleAddBundle('trio')} className="bg-[#8B5E3C] text-white px-6 py-3 rounded-xl font-bold uppercase text-xs hover:bg-[#C5A059] transition-all">
+                      Adaugă Trio (20% OFF)
+                    </button>
+                  </div>
+
+                  {/* Pictograme de încredere plasate sub buton */}
+                  <div className="pt-4 border-t border-stone-200/60 grid grid-cols-3 gap-2 text-center text-stone-500 text-[10px] tracking-wide uppercase font-semibold">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-base">🔒</span>
+                      <span>Secure Checkout</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-base">🚚</span>
+                      <span>Livrare 24-48h</span>
+                    </div>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-base">🔞</span>
+                      <span>Vârstă +18 Ani</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             )}
 

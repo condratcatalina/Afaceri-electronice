@@ -5,11 +5,21 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { toast } from 'sonner';
 import axiosAuth from '../axios/axiosAuth';
 
+// Funcție pentru ștergerea întregului coș
 const clearCartBackend = async () => {
   try {
     await axiosAuth.delete('/cart');
   } catch (err) {
     throw new Error(err.response?.data?.message || 'Error clearing cart');
+  }
+};
+
+// NOU: Funcție pentru ștergerea unui singur produs din backend
+const removeItemBackend = async (productId) => {
+  try {
+    await axiosAuth.delete(`/cart/${productId}`);
+  } catch (err) {
+    throw new Error(err.response?.data?.message || 'Error removing item');
   }
 };
 
@@ -22,6 +32,17 @@ export default function CartPage() {
       .unwrap()
       .catch(err => toast.error(err?.message || 'Failed to load cart'));
   }, [dispatch]);
+
+  // NOU: Handler pentru ștergerea individuală a unui produs
+  const handleRemoveItem = async (productId) => {
+    try {
+      await removeItemBackend(productId);
+      dispatch(fetchCart()); // Reîncărcăm coșul pentru a actualiza state-ul global și reducerile
+      toast.success('Produsul a fost eliminat din coș');
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   // --- LOGICA DE CALCUL DISCOUNT RITUAL ---
   const calculateRitualDiscount = () => {
@@ -52,7 +73,6 @@ export default function CartPage() {
     Object.values(bundles).forEach(bundle => {
       if (bundle.book && bundle.extras.length > 0) {
         bundle.extras.forEach(extra => {
-          // Reducerea se aplică pe produsele adiționale (lumânare/băutură)
           totalDiscount += (extra.price * extra.quantity) * 0.10;
         });
       }
@@ -93,12 +113,26 @@ export default function CartPage() {
                 <div>
                   <h2 className="font-serif text-xl text-stone-800">{item.Product?.name}</h2>
                   <p className="text-stone-500 font-light italic">{item.Product?.category}</p>
-                  <p className="text-[#C5A059] font-bold mt-1">{item.Product?.price} RON <span className="text-stone-400 text-sm font-normal">x {item.quantity}</span></p>
+                  <p className="text-[#C5A059] font-bold mt-1">
+                    {item.Product?.price} RON{' '}
+                    <span className="text-stone-400 text-sm font-normal">x {item.quantity}</span>
+                  </p>
                 </div>
               </div>
-              <p className="font-serif text-xl text-stone-900">
-                {(item.Product?.price * item.quantity).toFixed(2)} RON
-              </p>
+              
+              {/* Modificat zona de preț pentru a include și butonul de ștergere individuală */}
+              <div className="flex items-center space-x-6">
+                <p className="font-serif text-xl text-stone-900">
+                  {(item.Product?.price * item.quantity).toFixed(2)} RON
+                </p>
+                <button
+                  onClick={() => handleRemoveItem(item.Product?.id)}
+                  className="text-stone-300 hover:text-red-500 transition-colors text-lg p-2"
+                  title="Elimină produsul"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           ))}
         </div>

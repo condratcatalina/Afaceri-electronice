@@ -28,7 +28,7 @@ export default function HomePage() {
         <div className="bg-white/60 border border-stone-100 rounded-3xl p-12 text-center shadow-sm">
           <h2 className="text-3xl font-serif italic mb-10 text-stone-800">Recomandările Curatorului</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {["Pride and Prejudice", "1984", "The Great Gatsby"].map((book, i) => (
+            {["Pride and Prejudice", "Ugly love", "The Great Gatsby"].map((book, i) => (
               <div key={i} className="group p-8 bg-[#FDFBF7] border border-stone-50 rounded-xl hover:shadow-lg transition-all cursor-pointer">
                 <p className="font-serif text-xl italic text-stone-800 group-hover:text-[#C5A059]">"{book}"</p>
                 <div className="w-8 h-[1px] bg-[#C5A059] mx-auto my-4 opacity-50"></div>

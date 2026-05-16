@@ -1,9 +1,14 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { toast } from 'sonner';
+import { addToCart } from '../store/slices/cartSlice';
 
 const BlindDatePage = () => {
+  const dispatch = useDispatch();
+
   const mysteryProducts = [
     {
-      id: "bd-1",
+      id: 62, // ID-ul real din baza de date pentru Star-Crossed Lovers
       title: "The Star-Crossed Lovers",
       description: "O poveste despre iubiri care transcend timpul. Te poți aștepta la scrisori nespuse, ploaie și un vibe victorian melancolic.",
       tags: ["Romance", "Vintage", "Emotional"],
@@ -11,7 +16,7 @@ const BlindDatePage = () => {
       image: "/blind-date-book.jpg"
     },
     {
-      id: "bd-2",
+      id: 63, // ID-ul real din baza de date pentru Haunted Library
       title: "The Haunted Library",
       description: "Pentru cei care caută umbrele. Secrete de familie îngropate adânc și biblioteci pline de mister la miezul nopții.",
       tags: ["Mystery", "Gothic", "Thriller"],
@@ -19,7 +24,7 @@ const BlindDatePage = () => {
       image: "/blind-date-book.jpg"
     },
     {
-      id: "bd-3",
+      id: 64, // ID-ul real din baza de date pentru Golden Age Scholar
       title: "The Golden Age Scholar",
       description: "O călătorie în mintea marilor gânditori. Filozofie, cafenele europene și parfum de pagini îngălbenite.",
       tags: ["History", "Philosophy", "Classic"],
@@ -27,6 +32,14 @@ const BlindDatePage = () => {
       image: "/blind-date-book.jpg"
     }
   ];
+
+  const handleAddToCart = (book) => {
+    dispatch(addToCart({ product_id: book.id, quantity: 1 }));
+    toast.success(`"${book.title}" a fost adăugat în coș!`, {
+      description: "Pregătește-te pentru o poveste misterioasă pe nevăzute.",
+      icon: '✨'
+    });
+  };
 
   return (
     <div className="min-h-screen bg-[#fdfcf8] pt-32 pb-20">
@@ -66,7 +79,10 @@ const BlindDatePage = () => {
                 ))}
               </div>
 
-              <button className="border border-stone-800 text-stone-800 px-8 py-3 rounded-full text-xs uppercase tracking-[0.2em] hover:bg-stone-800 hover:text-white transition-all duration-500">
+              <button 
+                onClick={() => handleAddToCart(book)}
+                className="border border-stone-800 text-stone-800 px-8 py-3 rounded-full text-xs uppercase tracking-[0.2em] hover:bg-stone-800 hover:text-white transition-all duration-500"
+              >
                 Alege Destinul — {book.price}
               </button>
             </div>
